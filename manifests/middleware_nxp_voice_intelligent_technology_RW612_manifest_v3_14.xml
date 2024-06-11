@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ksdk:manifest xmlns:ksdk="http://nxp.com/ksdk/2.0/ksdk_manifest_v3.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="SDK_2.x_middleware_nxp_voice_intelligent_technology_RW612_manifest_v3_14" name="Voice intelligent technology library" brief="Voice Intelligent Technology (VIT) Library provides wake word and voice command engine for voice control" format_version="3.14" api_version="2.0.0" xsi:schemaLocation="http://nxp.com/ksdk/2.0/ksdk_manifest_v3.0.xsd http://nxp.com/mcuxpresso/sdk/sdk_manifest_v3.14.xsd">
+
+  <externalDefinitions>
+    <definition extID="rdrw612bga"/>
+    <definition extID="RW612"/>
+    <definition extID="mcuxpresso"/>
+    <definition extID="armgcc"/>
+  </externalDefinitions>
+  <ksdk id="MCUXpressoSDK216000_middleware_nxp_voice_intelligent_technology_RW612_manifest_v3_14" name="MCUXpressoSDK216000_middleware_nxp_voice_intelligent_technology_RW612_manifest_v3_14" version="2.16.000" revision="2.16.000"/>
+  <components>
+    <component id="middleware.vit.cm33-rw61x.RW612" name="vit" brief="Voice intelligent technology library for Cortex M7" version="4.10.0" full_name="middleware vit cm33 rw61x" category="Voice/Voice Command" user_visible="true" type="middleware" package_base_path=".././" project_base_path="vit">
+      <dependencies>
+        <all>
+          <board_dependency value="rdrw612bga"/>
+          <device_dependency value="RW612"/>
+        </all>
+      </dependencies>
+      <source toolchain="mcuxpresso" relative_path="./CortexM33-RW61X/Lib" project_relative_path="CortexM33-RW61X/Lib" type="c_include">
+        <files mask="VIT.h"/>
+        <files mask="VIT_Model_cn.h"/>
+        <files mask="VIT_Model_de.h"/>
+        <files mask="VIT_Model_en.h"/>
+        <files mask="VIT_Model_es.h"/>
+        <files mask="VIT_Model_fr.h"/>
+        <files mask="VIT_Model_it.h"/>
+        <files mask="VIT_Model_ja.h"/>
+        <files mask="VIT_Model_ko.h"/>
+        <files mask="VIT_Model_pt.h"/>
+        <files mask="VIT_Model_tr.h"/>
+      </source>
+      <source toolchain="mcuxpresso" relative_path="./CortexM33-RW61X/Lib/Inc" project_relative_path="CortexM33-RW61X/Lib/Inc" type="c_include">
+        <files mask="PL_memoryRegion.h"/>
+        <files mask="PL_platformTypes_CortexM.h"/>
+      </source>
+      <source toolchain="mcuxpresso" relative_path="./CortexM33-RW61X/Lib" project_relative_path="CortexM33-RW61X/Lib" type="lib">
+        <files mask="libVIT_CM33_RW61X_v04_10_00.a"/>
+      </source>
+      <source exclude="true" relative_path="./CortexM33-RW61X/Doc" project_relative_path="CortexM33-RW61X/Doc" type="doc">
+        <files mask="VITIUG.pdf"/>
+      </source>
+      <source exclude="true" relative_path="./CortexM33-RW61X/ExApp" project_relative_path="CortexM33-RW61X/ExApp" type="src">
+        <files mask="VIT_ExApp.c"/>
+      </source>
+      <source exclude="true" relative_path="./CortexM33-RW61X/ExApp" project_relative_path="CortexM33-RW61X/ExApp" type="c_include">
+        <files mask="AFE_VoiceSeeker.h"/>
+      </source>
+      <source exclude="true" relative_path="./CortexM33-RW61X" project_relative_path="CortexM33-RW61X" type="doc">
+        <files mask="LICENSE.txt"/>
+        <files mask="ReleaseNotes.txt"/>
+      </source>
+      <source toolchain="armgcc" relative_path="./" type="workspace">
+        <files mask="middleware_vit_cm33-rw61x.cmake" hidden="true"/>
+      </source>
+      <include_paths>
+        <include_path relative_path="./CortexM33-RW61X/Lib" project_relative_path="CortexM33-RW61X/Lib" toolchain="mcuxpresso" type="c_include"/>
+        <include_path relative_path="./CortexM33-RW61X/Lib/Inc" project_relative_path="CortexM33-RW61X/Lib/Inc" toolchain="mcuxpresso" type="c_include"/>
+      </include_paths>
+    </component>
+  </components>
+</ksdk:manifest>
