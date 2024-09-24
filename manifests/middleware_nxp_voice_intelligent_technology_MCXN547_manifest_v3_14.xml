@@ -7,7 +7,7 @@
     <definition extID="mcuxpresso"/>
     <definition extID="armgcc"/>
   </externalDefinitions>
-  <ksdk id="MCUXpressoSDK216000_middleware_nxp_voice_intelligent_technology_MCXN547_manifest_v3_14" name="MCUXpressoSDK216000_middleware_nxp_voice_intelligent_technology_MCXN547_manifest_v3_14" version="2.16.000" revision="2.16.000"/>
+  <ksdk id="MCUXpressoSDK216100_middleware_nxp_voice_intelligent_technology_MCXN547_manifest_v3_14" name="MCUXpressoSDK216100_middleware_nxp_voice_intelligent_technology_MCXN547_manifest_v3_14" version="2.16.100" revision="2.16.100"/>
   <components>
     <component id="middleware.vit.cm33-mcxn94x.MCXN547" name="vit" brief="Voice intelligent technology library for Cortex M33" version="4.10.0" full_name="middleware vit cm33 mcxn94x" category="Voice/Voice Command" user_visible="true" type="middleware" package_base_path=".././" project_base_path="vit">
       <dependencies>
