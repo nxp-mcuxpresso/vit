@@ -34,7 +34,7 @@ extern "C" {
 /*  Definitions                                                                         */
 /*                                                                                      */
 /****************************************************************************************/
-typedef enum { _1CHAN = 1, _2CHAN, _3CHAN} NumberOfChannel_en;
+typedef enum { _1CHAN = 1, _2CHAN, _3CHAN, VIT_DUMMY_CHAN = PL_MAXENUM} NumberOfChannel_en;
 
 /*****  Input audio (size, sampling rate, channel number)  *****/
 
@@ -45,8 +45,9 @@ typedef enum { _1CHAN = 1, _2CHAN, _3CHAN} NumberOfChannel_en;
 #define VIT_SAMPLE_RATE                   16000               // sample rate in Hz
 #define VIT_MAX_NUMBER_OF_CHANNEL         _1CHAN
 
-#define MAX_NUMBER_TAG               10
-#define MAX_NUMBER_WORDS_PER_TAG     10
+#define MAX_NUMBER_SLOT_TAG                                                                           8
+#define MAX_NUMBER_WORDS_PER_SLOT_TAG_VALUE                                                          10
+#define MAX_NUMBER_ELEM_FOR_ALL_SLOT_TAG      (MAX_NUMBER_SLOT_TAG*MAX_NUMBER_WORDS_PER_SLOT_TAG_VALUE)
 
 // Error type
 typedef enum
@@ -62,15 +63,16 @@ typedef enum
     VIT_WRONG_MODEL                     = 8,                  ///< Model and lib not aligned (Voice commands vs SpeechToIntent)
     VIT_INVALID_API_VERSION             = 9,                  ///< wrong API version
     VIT_INVALID_STATE                   = 10,                 ///< State machine error
-    VIT_INVALID_DEVICE                  = 11,                 ///< VIT not running on expected Device 
-    VIT_SYSTEM_ERROR                    = 12,                 ///< System error
-    VIT_ERROR_UNDEFINED                 = 13,                 ///< Unknow error
+    VIT_INVALID_DEVICE                  = 11,                 ///< VIT not running on expected Device
+    VIT_LICENSE_EXPIRED                 = 12,                 ///< VIT SpeechToIntent reached trial timeout (demo version) 
+    VIT_SYSTEM_ERROR                    = 13,                 ///< System error
+    VIT_ERROR_UNDEFINED                 = 14,                 ///< Unknow error
     VIT_DUMMY_ERROR                     = PL_MAXENUM
 }VIT_ReturnStatus_en;
 
 
 #define VIT_API_VERSION_MAJOR 3
-#define VIT_API_VERSION_MINOR 2
+#define VIT_API_VERSION_MINOR 4
 #define VIT_API_VERSION       ((VIT_API_VERSION_MAJOR<<16) | (VIT_API_VERSION_MINOR<<8))
 
 /****************************************************************************************/
@@ -132,15 +134,13 @@ typedef enum
     VIT_IMXRT1170,                             // I.MXRT1170 : VIT running on Cortex-M7
     VIT_IMXRT500,                              // I.MXRT500  : VIT running on FusionF1
     VIT_IMXRT600,                              // I.MXRT600  : VIT running on HIFI4
-    VIT_IMXRT700,                              // I.MXRT700  : VIT running on HIFI4
+    VIT_IMXRT700,                              // I.MXRT700  : VIT running on HIFI4, HIFI1
     VIT_RW610,                                 // RW610      : VIT running on Cortex-M33-noDSP
     VIT_LPC55S69,                              // LPC55S69   : VIT running on Cortex-M33+PowerQuad
     VIT_MCXN94X,                               // MCXN94X    : VIT running on Cortex-M33-Core0+PowerQuad
-    VIT_IMX8MMINIM4,                           // I.MX8MINI  : VIT running on Cortex-M4
-    VIT_IMX8MPLUSM7,                           // I.MX8PLUS  : VIT running on Cortex-M7
     VIT_IMX8MA53,                              // I.MX8MA53  : VIT running on Cortex-A53 (i.MX8MPlus, i.MX8MMini, i.MX8MNano and i.MX8QM)
     VIT_IMX8ULPA35,                            // I.MX8ULPA35: VIT running on Cortex-A35 (i.MX8ULP)
-    VIT_IMX9XA55,                              // I.MX9XA55  : VIT running on Cortex-A (i.MX9X)
+    VIT_IMX9XA55,                              // I.MX9XA55  : VIT running on Cortex-A (i.MX91, i.MX93, i.MX95)
 
     VIT_NB_OF_DEVICES = VIT_IMX9XA55,
     VIT_DUMMY_DEVICE  = PL_MAXENUM
@@ -177,7 +177,7 @@ typedef struct
 /* Wakeword structure */
 typedef struct
 {
-    PL_UINT16                    Id;
+    PL_UINT16                     Id;
     const char                   *pName;
     PL_UINT32                    StartOffset;                 // in samples
     PL_UINT32                    EndOffset;                   // in samples
@@ -186,17 +186,27 @@ typedef struct
 /* Voice Command structure */
 typedef struct
 {
-    PL_UINT16                    Id;
+    PL_UINT16                     Id;
     const char                   *pName;
+    PL_UINT32                    StartOffset;                 // in samples
+    PL_UINT32                    EndOffset;                   // in samples
 } VIT_VoiceCommand_st;
 
 typedef struct
 {
-    const char   *pIntentName[MAX_NUMBER_TAG];
-    const char   *pTagName[MAX_NUMBER_TAG];
-    PL_INT16     IntentTag_count;
-    const char   *pTagValueName[MAX_NUMBER_TAG*MAX_NUMBER_WORDS_PER_TAG];
-    PL_INT16     TagValue_count[MAX_NUMBER_TAG];
+    // Intent
+    const char   *pIntent[MAX_NUMBER_SLOT_TAG];
+    PL_UINT32    StartOffset;                                 // in samples
+    PL_UINT32    EndOffset;                                   // in samples
+
+    // Slot Tag (Tag = informative)
+    const char   *pSlot_Tag[MAX_NUMBER_SLOT_TAG];
+    PL_UINT16    Slot_Tag_count;
+    
+    // Slot Tag Value
+    const char   *pSlot_Tag_Value[MAX_NUMBER_ELEM_FOR_ALL_SLOT_TAG];
+    PL_UINT16    Slot_Tag_Value_count[MAX_NUMBER_SLOT_TAG];
+    
 } VIT_Intent_st;
 
 /* Control Parameter structure */
@@ -219,8 +229,8 @@ typedef struct
     const char                   *pWakeWord_List;
     PL_UINT16                    NbOfVoiceCmds;
     const char                   *pVoiceCmds_List;
-    PL_UINT16                    NbOfIntentTag;
-    const char                   *pIntentTag_List;
+    PL_UINT16                    NbOfIntentSlotTag;
+    const char                   *pIntentSlotTag_List;
     PL_UINT16                    NbOfWords;
 }
 VIT_ModelInfo_st;

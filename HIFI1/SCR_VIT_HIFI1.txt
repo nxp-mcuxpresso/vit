@@ -1,0 +1,39 @@
+NXP Software Content Register
+
+Release Name : VIT_v4.11.0
+Description: HIFI1 Voice Intelligent Technology library : VIT Wakeword and Voice Command
+Version: 4.11.0
+
+#### VIT package #######
+Outgoing License : LA_OPT_NXP_Software_License v57 July 2024 - Additional distribution license granted - Section 2.3 applies
+License file : LICENSE.txt
+Author: NXP - VATEC
+Format: VIT package
+
+
+#### Package content #######
+Outgoing License : LA_OPT_NXP_Software_License v57 July 2024 - Additional distribution license granted - Section 2.3 applies
+License file : LICENSE.txt
+Author: NXP - VATEC
+Format: Precompiled libraries
+
+Outgoing License : BSD-3
+License file : COPYING-BSD3.txt
+Author: NXP - VATEC
+Format: header files, application files
+
+Name: dsp_nn
+Version: 2.2.0
+Outgoing License: Cadence Design Systems License
+License File: CADENCE_LICENSE.txt
+Format: object code
+Description: DSP Neural Networks Framework based on Xtensa Neural Networks Library from Cadence Design
+Origin: Cadence Design Systems, Inc. & NXP
+
+Name: naturedsp
+Version: 4.0.0
+Outgoing License : LA_OPT_NXP_Software_License v56 April 2024 - Appendix A: Cadence Design Systems applies
+License File: License.txt
+Format: object code
+Description: Digital Signal Processing for Xtensa HiFi Audio Engines
+Origin: Cadence Design Systems (Proprietary)

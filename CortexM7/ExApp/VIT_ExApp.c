@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 NXP
+ * Copyright 2020-2024 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,7 @@
 /*    VIT Configuration      */
 
 // Select core targeted
+//#define PLATFORM_RT700
 //#define PLATFORM_RT600
 //#define PLATFORM_RT500
 //#define PLATFORM_RT1040
@@ -38,8 +39,7 @@
 
 // PCM input file
 // The data format should be aligned with VIT interface (16kHz, 16-bit, number of channel) 
-#define INPUT_FILE                   "../../../../_INPUT/HEYNXP_WW_CMD.pcm" 
-
+#define INPUT_FILE                   "../../../../_INPUT/HEYNXP_WW_CMD.pcm"
 
 #ifndef MEMORY_MALLOC
 // STATIC ALLOCATION 
@@ -55,6 +55,17 @@
 
 #endif
 
+#define VIT_OPERATING_MODE_WW_VC       VIT_WAKEWORD_ENABLE | VIT_VOICECMD_ENABLE
+#define VIT_OPERATING_MODE_WW_S2I      VIT_WAKEWORD_ENABLE | VIT_SPEECHTOINTENT_ENABLE
+
+#ifdef SPEECH_TO_INTENT
+    #ifdef PLATFORM_RT1040
+        #error "Speech intent not supported for PLATFORM_RT1040"
+    #endif
+    #define VIT_OPERATING_MODE          VIT_OPERATING_MODE_WW_S2I
+#else
+    #define VIT_OPERATING_MODE          VIT_OPERATING_MODE_WW_VC
+#endif
 
 // Configurations below are provided as examples of possible VIT configurations
 // see VIT.h for further information on VIT configurations
@@ -62,37 +73,34 @@
     #include "PL_platformTypes_CortexM.h"
     #define MODEL_LOCATION              VIT_MODEL_IN_SLOW_MEM
     #define DEVICE_ID                   VIT_IMXRT1040
-    #define VIT_OPERATING_MODE          VIT_WAKEWORD_ENABLE | VIT_VOICECMD_ENABLE
 #elif PLATFORM_RT1060
     #include "PL_platformTypes_CortexM.h"
     #define MODEL_LOCATION              VIT_MODEL_IN_SLOW_MEM
     #define DEVICE_ID                   VIT_IMXRT1060
-    #define VIT_OPERATING_MODE          VIT_WAKEWORD_ENABLE | VIT_VOICECMD_ENABLE
 #elif defined PLATFORM_RT1170
     #include "PL_platformTypes_CortexM.h"
     #define MODEL_LOCATION              VIT_MODEL_IN_SLOW_MEM
     #define DEVICE_ID                   VIT_IMXRT1170
-    #define VIT_OPERATING_MODE          VIT_WAKEWORD_ENABLE | VIT_VOICECMD_ENABLE
-#elif defined  PLATFORM_RT600
-    #include "PL_platformTypes_HIFI4_FUSIONF1.h"
-    #define MODEL_LOCATION              VIT_MODEL_IN_SLOW_MEM
-    #define DEVICE_ID                   VIT_IMXRT600
-    #define VIT_OPERATING_MODE          VIT_WAKEWORD_ENABLE | VIT_VOICECMD_ENABLE
 #elif defined  PLATFORM_RT500
-    #include "PL_platformTypes_HIFI4_FUSIONF1.h"
-    #define MODEL_LOCATION              VIT_MODEL_IN_SLOW_MEM
+    #include "PL_platformTypes_HIFI_FUSIONF1.h"
+    #define MODEL_LOCATION              VIT_MODEL_IN_FAST_MEM
     #define DEVICE_ID                   VIT_IMXRT500
-    #define VIT_OPERATING_MODE          VIT_WAKEWORD_ENABLE | VIT_VOICECMD_ENABLE
+#elif defined  PLATFORM_RT600
+    #include "PL_platformTypes_HIFI_FUSIONF1.h"
+    #define MODEL_LOCATION              VIT_MODEL_IN_FAST_MEM
+    #define DEVICE_ID                   VIT_IMXRT600
+#elif defined  PLATFORM_RT700
+    #include "PL_platformTypes_HIFI_FUSIONF1.h"
+    #define MODEL_LOCATION              VIT_MODEL_IN_FAST_MEM
+    #define DEVICE_ID                   VIT_IMXRT700
 #elif defined  PLATFORM_WINDOWS
     #include "PL_platformTypes_windows.h"
     #define MODEL_LOCATION              VIT_MODEL_IN_SLOW_MEM
     #define DEVICE_ID                   VIT_IMXRT500   //Dummy
-    #define VIT_OPERATING_MODE          VIT_WAKEWORD_ENABLE | VIT_VOICECMD_ENABLE
 #elif defined  PLATFORM_LINUX
     #include "PL_platformTypes_linux.h"
     #define MODEL_LOCATION              VIT_MODEL_IN_SLOW_MEM
     #define DEVICE_ID                   VIT_IMXRT500   //Dummy
-    #define VIT_OPERATING_MODE          VIT_WAKEWORD_ENABLE | VIT_VOICECMD_ENABLE
 #else
     #error "No platform selected"
 #endif
@@ -117,7 +125,7 @@
 
 // Enable or not VoiceSeeker Processing
 
-#define AFE_VOICESEEKER
+//#define AFE_VOICESEEKER
 
 #ifdef AFE_VOICESEEKER
 #include "AFE_VoiceSeeker.h"
@@ -185,7 +193,11 @@ PL_INT32 main(void)
     VIT_ControlParams_st      VITControlParams;                         // VIT control parameters structure
     PL_MemoryTable_st         VITMemoryTable;                           // VIT memory table descriptor
     VIT_ReturnStatus_en       Status;                                   // Status of the function
+#ifdef SPEECH_TO_INTENT
+    VIT_Intent_st             Intent;                                   // Intent info
+#else
     VIT_VoiceCommand_st       VoiceCommand;                             // Voice Command info
+#endif
     VIT_WakeWord_st           WakeWord;                                 // Wakeword info
     VIT_DetectionStatus_en    VIT_DetectionResults = VIT_NO_DETECTION;  // VIT detection result
     PL_INT16                  *VIT_InputData;    
@@ -261,7 +273,12 @@ PL_INT32 main(void)
     }
 
     printf("  Number of WakeWords supported : %d \n", Model_Info.NbOfWakeWords);
+#if defined(SPEECH_TO_INTENT)
+    printf("  Number of couple intent - slot tag supported : %d \n", Model_Info.NbOfIntentSlotTag);
+    printf("  Number of words supported : %d \n", Model_Info.NbOfWords);
+#else
     printf("  Number of Commands supported : %d \n",  Model_Info.NbOfVoiceCmds);
+#endif
 
     if (!Model_Info.WW_VoiceCmds_Strings)               // Check here if Model is containing WW and CMDs strings
     {
@@ -282,6 +299,23 @@ PL_INT32 main(void)
                 ptr += strlen(ptr) + 1;                 // to consider NULL char
             }
         }
+#if defined(SPEECH_TO_INTENT)
+        printf("\nIntent supported : \n");
+        const char *ptr_intent, *ptr_slot, *ptr_words;
+        printf("\n 2-uplet Intent - Slot Tag supported : \n");
+        printf(" [Intent] {Slot Tag} \n");
+        ptr_intent = Model_Info.pIntentSlotTag_List;
+        ptr_slot = ptr_intent + strlen(ptr_intent) + 1;
+        if (ptr_intent != PL_NULL)
+        {
+            for (PL_UINT16 i = 0; i < (Model_Info.NbOfIntentSlotTag); i++)
+            {
+                printf(" [%s] {%s} \n", ptr_intent, ptr_slot);
+                ptr_intent = ptr_intent + (strlen(ptr_intent) + 1 + strlen(ptr_slot) + 1);  // to consider NULL char
+                ptr_slot = ptr_slot + (strlen(ptr_intent) + 1 + strlen(ptr_slot) + 1);
+            }
+        }
+#else   // Voice Commands case
         printf("  Voice commands supported : \n");
         ptr = Model_Info.pVoiceCmds_List;
         if (ptr != PL_NULL)
@@ -292,8 +326,8 @@ PL_INT32 main(void)
                 ptr += strlen(ptr) + 1;                 // to consider NULL char
             }
         }
+#endif
     }
-
 
     /*
      *   VIT Get Library information
@@ -608,6 +642,47 @@ PL_INT32 main(void)
 #endif
             }
         }
+#ifdef SPEECH_TO_INTENT
+        else if (VIT_DetectionResults == VIT_INTENT_DETECTED)
+        {
+            // Retrieve number of slot tag
+            // String of the intent and associated slot tag (when WW and couple Intent-SlotTag strings are integrated in Model)
+            Status = VIT_GetIntentFound( VITHandle,
+                                         &Intent
+                                             );
+            if (Status != VIT_SUCCESS)
+            {
+                printf("VIT_GetIntentFound error : %d\n", Status);
+                break;                                                               // will stop processing VIT and go directly to MEM free
+            }
+            else
+            {
+                if ( Intent.Slot_Tag_count !=0 )
+                {
+                    for (PL_INT16 i=(Intent.Slot_Tag_count-1); i>=0; i--)
+                    {
+                        if ((Intent.pIntent[i] != PL_NULL) && (Intent.pSlot_Tag[i] != PL_NULL))
+                        {
+                            printf(" - Intent:                           %s\n", Intent.pIntent[i]);
+                            printf("%d - Slot Tag:                           %s\n", frameCnt, Intent.pSlot_Tag[i]);
+                        }
+                        for (PL_INT16 j=(Intent.Slot_Tag_Value_count[i]-1); j>=0; j--)
+                        {
+                            if (Intent.pSlot_Tag_Value[(i*MAX_NUMBER_WORDS_PER_SLOT_TAG_VALUE)] != PL_NULL)
+                            {
+                                printf("%d - Slot Tag value:                     %s\n", frameCnt, Intent.pSlot_Tag_Value[(i*MAX_NUMBER_WORDS_PER_SLOT_TAG_VALUE)+j]);
+                            }
+                        }
+                    }
+                    printf("\n");
+                }
+                else
+                {
+                    printf(" - No Intent detected \n");
+                }
+            }
+        }
+#else
         else if (VIT_DetectionResults == VIT_VC_DETECTED)
         {
             // Retrieve id of the Voice Command detected
@@ -632,6 +707,7 @@ PL_INT32 main(void)
                 }
             }
         }
+#endif
         
         frameCnt++;
     } // end while MainLoop_Flag == 1

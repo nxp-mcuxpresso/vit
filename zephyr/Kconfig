@@ -1,0 +1,19 @@
+menuconfig NXP_VIT
+    bool "VIT Library"
+    select NXP_VIT_INCLUDE_LANGUAGE_PACKS
+    help
+      This option enables the VIT library
+
+if NXP_VIT
+
+    config NXP_VIT_INCLUDE_LANGUAGE_PACKS
+        bool "Includes language packs into the build."
+        default n
+        depends on NXP_VIT
+        help
+          Allowing NXP_VIT_INCLUDE_LANGUAGE_PACKS does NOT ensure they would be used automatically.
+          This option adds precompiled language packs, compiled as header files into the build using include_directories command in VIT's cmake.
+          If you wanted to use any language pack, it must be added into the examples in its source codes specifically. See Mestro VIT sample for reference.
+          Supported languages are: EN, CN, ES, FR, IT, JA, KO, PT, TR. See [Platform]/Lib/VIT_Model_*.h what language packs are supported for your platform. They might differ.
+
+endif # NXP_VIT

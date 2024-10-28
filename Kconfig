@@ -1,0 +1,49 @@
+menuconfig MCUX_PRJSEG_middleware.audio_voice.components.vit
+    bool "VIT"
+    default n
+    help
+        This option will enable Voice Intelligent Technology middleware component
+
+config MCUX_COMPONENT_middleware.audio_voice.components.vit.hifi4_models
+    bool "Component middleware.audio_voice.components.vit.hifi4_models"
+    default n
+    depends on (MCUX_HW_BOARD_evkmimxrt685 || MCUX_HW_BOARD_mimxrt685audevk || MCUX_HW_BOARD_mimxrt700evk)
+
+config MCUX_COMPONENT_middleware.audio_voice.components.vit.fusionf1_models
+    bool "Component middleware.audio_voice.components.vit.fusionf1_models"
+    default n
+    depends on MCUX_HW_BOARD_evkmimxrt595
+
+if MCUX_PRJSEG_middleware.audio_voice.components.vit
+    config MCUX_COMPONENT_middleware.audio_voice.components.vit.hifi4
+        bool "VIT for hifi4"
+        default y
+        select MCUX_COMPONENT_middleware.audio_voice.components.vit.hifi4_models
+        depends on (MCUX_HW_BOARD_evkmimxrt685 || MCUX_HW_BOARD_mimxrt685audevk || MCUX_HW_BOARD_mimxrt700evk) && MCUX_HW_CORE_ID_HIFI4
+
+    config MCUX_COMPONENT_middleware.audio_voice.components.vit.fusionf1
+        bool "VIT for fusionf1"
+        default y
+        select MCUX_COMPONENT_middleware.audio_voice.components.vit.fusionf1_models
+        depends on MCUX_HW_BOARD_evkmimxrt595 && MCUX_HW_CORE_ID_FUSIONF1
+
+    config MCUX_COMPONENT_middleware.audio_voice.components.vit.cm7
+        bool "VIT for cm7"
+        default y
+        depends on MCUX_HW_BOARD_evkmimxrt1040 || MCUX_HW_BOARD_evkbimxrt1050 || MCUX_HW_BOARD_evkmimxrt1060 || MCUX_HW_BOARD_evkbmimxrt1060 || MCUX_HW_BOARD_evkcmimxrt1060 || MCUX_HW_BOARD_evkmimxrt1064 || MCUX_HW_BOARD_evkmimxrt1160 || MCUX_HW_BOARD_evkmimxrt1170 || MCUX_HW_BOARD_evkbmimxrt1170
+
+    config MCUX_COMPONENT_middleware.audio_voice.components.vit.cm33-lpc55s69
+        bool "VIT for cm33-lpc55s69"
+        default y
+        depends on MCUX_HW_BOARD_lpcxpresso55s69
+
+    config MCUX_COMPONENT_middleware.audio_voice.components.vit.cm33-mcxn94x
+        bool "VIT for cm33-mcxn94x"
+        default y
+        depends on MCUX_HW_BOARD_mcxn5xxevk
+
+    config MCUX_COMPONENT_middleware.audio_voice.components.vit.cm33-rw61x
+        bool "VIT for cm33-rw61x"
+        default y
+        depends on MCUX_HW_BOARD_rdrw612bga || MCUX_HW_BOARD_rdrw612qfn
+endif

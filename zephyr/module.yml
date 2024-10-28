@@ -1,0 +1,4 @@
+name: vit
+build:
+  cmake: ./zephyr/
+  kconfig: ./zephyr/Kconfig
